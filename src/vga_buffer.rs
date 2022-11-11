@@ -1,4 +1,4 @@
-use crate::vga_buffer::Color::{Brown, Yellow};
+use crate::vga_buffer::Color::{Black, Yellow};
 use volatile::Volatile;
 use core::fmt;
 
@@ -89,7 +89,28 @@ impl Writer {
         }
     }
 
-    fn new_line(&mut self) { /* TODO */ }
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let char = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(char);
+            }
+        }
+
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    fn clear_row(&mut self, row: usize) {
+        let blank_space = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank_space);
+        }
+    }
 }
 
 impl fmt::Write for Writer {
@@ -104,11 +125,13 @@ pub fn print_something() {
 
     let mut writer = Writer {
         column_position: 0,
-        color_code: ColorCode::new(Yellow, Brown),
+        color_code: ColorCode::new(Yellow, Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     };
 
     writer.write_byte(b'H');
     writer.write_string("ello from Rust OS Kernal!!");
-    write!(writer ,"Some number -> {}, {}", 2, 3.0/6.0).unwrap();
+    write!(writer, "\n");
+    write!(writer, "Some number -> {}, {}", 2, 3.0 / 6.0).unwrap();
+    write!(writer, "\n");
 }
