@@ -1,4 +1,5 @@
 use crate::vga_buffer::Color::{Black, Brown, Yellow};
+use volatile::Volatile;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -44,7 +45,7 @@ const BUFFER_WIDTH: usize = 80;
 
 #[repr(transparent)]
 struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 pub struct Writer {
@@ -54,7 +55,6 @@ pub struct Writer {
 }
 
 impl Writer {
-
     fn write_string(&mut self, string: &str) {
         for byte in string.bytes() {
             match byte {
@@ -77,24 +77,25 @@ impl Writer {
 
                 let color_code = self.color_code;
 
-                self.buffer.chars[row][col] = ScreenChar {
-                    ascii_character: _byte,
-                    color_code
-                };
+                self.buffer.chars[row][col].write(
+                    ScreenChar {
+                        ascii_character: _byte,
+                        color_code,
+                    }
+                );
                 self.column_position += 1;
-
             }
         }
     }
 
-    fn new_line(&mut self) {/* TODO */}
+    fn new_line(&mut self) { /* TODO */ }
 }
 
-pub fn print_something(){
+pub fn print_something() {
     let mut writer = Writer {
-        column_position:0,
+        column_position: 0,
         color_code: ColorCode::new(Yellow, Brown),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer)}
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     };
 
     writer.write_byte(b'H');
