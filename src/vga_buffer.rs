@@ -1,5 +1,6 @@
-use crate::vga_buffer::Color::{Black, Brown, Yellow};
+use crate::vga_buffer::Color::{Brown, Yellow};
 use volatile::Volatile;
+use core::fmt;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -91,7 +92,16 @@ impl Writer {
     fn new_line(&mut self) { /* TODO */ }
 }
 
+impl fmt::Write for Writer {
+    fn write_str(&mut self, string: &str) -> fmt::Result {
+        self.write_string(string);
+        return Ok(());
+    }
+}
+
 pub fn print_something() {
+    use core::fmt::Write;
+
     let mut writer = Writer {
         column_position: 0,
         color_code: ColorCode::new(Yellow, Brown),
@@ -100,4 +110,5 @@ pub fn print_something() {
 
     writer.write_byte(b'H');
     writer.write_string("ello from Rust OS Kernal!!");
+    write!(writer ,"Some number -> {}, {}", 2, 3.0/6.0).unwrap();
 }
