@@ -8,6 +8,7 @@ use core::panic::PanicInfo;
 /// This function is called on panic.
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
+    println!("{}", _info);
     loop {}
 }
 
@@ -26,9 +27,12 @@ pub extern "C" fn _start() -> ! {
 
     // vga_buffer::print_something();
 
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_string("Hello from Rust OS Kernel\n");
-    write!(vga_buffer::WRITER.lock(), "Some numbers: {} {}\n", 2, 3.0/60.0).unwrap();
+    // use core::fmt::Write;
+    // vga_buffer::WRITER.lock().write_string("Hello from Rust OS Kernel\n");
+    // write!(vga_buffer::WRITER.lock(), "Some numbers: {} {}\n", 2, 3.0/60.0).unwrap();
+
+    println!("Hello from Rust OS Kernel v{}", 1.0);
+    panic!("panicked");
 
     loop {}
 }
