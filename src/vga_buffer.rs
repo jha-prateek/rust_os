@@ -146,19 +146,3 @@ pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
 }
-
-// pub fn print_something() {
-//     use core::fmt::Write;
-//
-//     let mut writer = Writer {
-//         column_position: 0,
-//         color_code: ColorCode::new(Yellow, Black),
-//         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-//     };
-//
-//     writer.write_byte(b'H');
-//     writer.write_string("ello from Rust OS Kernal!!");
-//     write!(writer, "\n");
-//     write!(writer, "Some number -> {}, {}", 2, 3.0 / 6.0).unwrap();
-//     write!(writer, "\n");
-// }
