@@ -1,6 +1,8 @@
 use crate::vga_buffer::Color::{Black, Yellow};
 use volatile::Volatile;
 use core::fmt;
+use lazy_static::lazy_static;
+use spin::Mutex;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -56,7 +58,7 @@ pub struct Writer {
 }
 
 impl Writer {
-    fn write_string(&mut self, string: &str) {
+    pub fn write_string(&mut self, string: &str) {
         for byte in string.bytes() {
             match byte {
                 0x20..=0x7e | b'\n' => self.write_byte(byte),
@@ -65,7 +67,7 @@ impl Writer {
         }
     }
 
-    fn write_byte(&mut self, byte: u8) {
+    pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
             _byte => {
@@ -120,18 +122,26 @@ impl fmt::Write for Writer {
     }
 }
 
-pub fn print_something() {
-    use core::fmt::Write;
-
-    let mut writer = Writer {
+lazy_static!{
+    pub static ref WRITER: Mutex<Writer> =  Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Yellow, Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
-
-    writer.write_byte(b'H');
-    writer.write_string("ello from Rust OS Kernal!!");
-    write!(writer, "\n");
-    write!(writer, "Some number -> {}, {}", 2, 3.0 / 6.0).unwrap();
-    write!(writer, "\n");
+    });
 }
+
+// pub fn print_something() {
+//     use core::fmt::Write;
+//
+//     let mut writer = Writer {
+//         column_position: 0,
+//         color_code: ColorCode::new(Yellow, Black),
+//         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+//     };
+//
+//     writer.write_byte(b'H');
+//     writer.write_string("ello from Rust OS Kernal!!");
+//     write!(writer, "\n");
+//     write!(writer, "Some number -> {}, {}", 2, 3.0 / 6.0).unwrap();
+//     write!(writer, "\n");
+// }

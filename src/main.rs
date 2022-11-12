@@ -24,7 +24,11 @@ pub extern "C" fn _start() -> ! {
     //     }
     // }
 
-    vga_buffer::print_something();
+    // vga_buffer::print_something();
+
+    use core::fmt::Write;
+    vga_buffer::WRITER.lock().write_string("Hello from Rust OS Kernel\n");
+    write!(vga_buffer::WRITER.lock(), "Some numbers: {} {}\n", 2, 3.0/60.0).unwrap();
 
     loop {}
 }
