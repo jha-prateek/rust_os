@@ -5,10 +5,8 @@
 #![test_runner(rust_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-mod vga_buffer;
-mod serial;
-
 use core::panic::PanicInfo;
+use rust_os::{println};
 
 #[cfg(not(test))]
 #[panic_handler]
