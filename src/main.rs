@@ -25,8 +25,14 @@ fn panic(_info: &PanicInfo) -> ! {
 pub extern "C" fn _start() -> ! {
     println!("Hello from Rust OS Kernel v{}", 1.0);
 
+    rust_os::init();
+
+    x86_64::instructions::interrupts::int3();
+
     #[cfg(test)]
     test_main();
+
+    println!("Still up!!");
 
     loop {}
 }
