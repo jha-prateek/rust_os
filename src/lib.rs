@@ -7,16 +7,19 @@
 
 use core::panic::PanicInfo;
 
+pub mod gdt;
+pub mod interrupts;
 pub mod serial;
 pub mod vga_buffer;
-pub mod interrupts;
 
 pub trait Testable {
     fn run(&self) -> ();
 }
 
 impl<T> Testable for T
-    where T: Fn(), {
+where
+    T: Fn(),
+{
     fn run(&self) -> () {
         serial_print!("{}...\t", core::any::type_name::<T>());
         self();
@@ -54,7 +57,6 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     }
 }
 
-
 #[cfg(test)]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -62,6 +64,7 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 pub fn init() {
+    gdt::init_gdt();
     interrupts::init_idt();
 }
 
@@ -73,10 +76,7 @@ pub extern "C" fn _start() -> ! {
     loop {}
 }
 
-
 #[test_case]
 fn test_breakpoint_exception() {
     x86_64::instructions::interrupts::int3();
 }
-
-
